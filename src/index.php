@@ -4,14 +4,17 @@ require_once('../vendor/autoload.php');
 
 class Vivid {
     protected $db;
-    protected $query,$table,$results,$limit;
+    protected $query;
+    protected $table;
+    protected $results;
+    protected $limit;
 
     function __construct($host,$database_name,$username,$password)
     {
         try {
             $this->db = new PDO("mysql:host=$host;dbname=$database_name",$username,$password);
         } catch(PDOException $e) {
-            echo $e->getMessage();
+            return $e->getMessage();
         }
     }
 
@@ -38,12 +41,13 @@ class Vivid {
             $this->query->execute();
             $this->results = $this->query->fetchAll(PDO::FETCH_OBJ);
         } catch(PDOException $e) {
-            echo $e->getMessage();
+            return $e->getMessage();
         }
-        var_dump($this->results);
+        return $this->results;
     }
 }
 
 $vivid = new Vivid('localhost','phonebook','root','password');
 $vivid->table('contact')
+      ->limit(5)
       ->get();
