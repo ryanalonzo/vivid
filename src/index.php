@@ -5,6 +5,7 @@ require_once('../vendor/autoload.php');
 class Vivid {
     protected $db;
     protected $query,$table,$results,$limit;
+
     function __construct($host,$database_name,$username,$password)
     {
         try {
@@ -45,5 +46,4 @@ class Vivid {
 
 $vivid = new Vivid('localhost','phonebook','root','password');
 $vivid->table('contact')
-      ->limit(2)
       ->get();
