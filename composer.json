@@ -1,0 +1,16 @@
+{
+    "name": "ralonzo/vivid",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Ryan Alonzo",
+            "email": "yanalonzo25@yahoo.com"
+        }
+    ],
+    "autoload": {
+        "classmap": [
+            "src"
+        ]
+    },
+    "require": {}
+}
