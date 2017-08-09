@@ -47,17 +47,18 @@ class Vivid {
         return $this->results;
     }
 
-    function create($columns = [])
+    function create($table, $columns = [])
     {
-        if(count($columns)) {
+        $this->table = $table;
+
+        if(isset($table) && count($columns)) {
             $keys = array_keys($columns);
             $values = array_values($columns);
-            $imploded = implode("','", $values);
-            $sql = "INSERT INTO users (".implode(',', $keys).") VALUES ('$imploded')";
-            echo $sql;
+            $vals = implode("','", $values);
+            $this->sql = "INSERT INTO {$this->table} (".implode(',', $keys).") VALUES ('$vals')";
 
             try {
-                $this->query = $this->db->prepare($sql);
+                $this->query = $this->db->prepare($this->sql);
                 $this->query->execute();
             } catch(PDOException $e) {
                 return $e->getMessage();
@@ -65,9 +66,17 @@ class Vivid {
         }
     }
 
-    function delete()
+    function delete($table, $id)
     {
+        $this->table = $table;
 
+        $this->sql = "DELETE FROM {$this->table} WHERE id='$id'";
+        try {
+                $this->query = $this->db->prepare($this->sql);
+                $this->query->execute();
+        } catch(PDOException $e) {
+                return $e->getMessage();
+        }
     }
 
     function update()
