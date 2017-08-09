@@ -64,13 +64,13 @@ class Vivid {
 
     function delete($table, $id)
     {
-        $this->sql = "DELETE FROM {$table} WHERE id='$id'";
+        $this->sql = "DELETE FROM {$table} WHERE id=?";
 
         try {
             $this->query = $this->db->prepare($this->sql);
-            $this->query->execute();
+            $this->query->execute(array($id));
         } catch(PDOException $e) {
-                return $e->getMessage();
+            return $e->getMessage();
         }
     }
 
@@ -82,18 +82,18 @@ class Vivid {
         foreach($columns as $key => $value) {
             $set.= "{$key} = '$value'";
             if($comma < count($columns)) {
-                $set.=',';
+                $set .= ',';
             }
             $comma++;
         }
 
-        $this->sql = "UPDATE {$table} SET {$set} WHERE id='{$id}'";
+        $this->sql = "UPDATE {$table} SET {$set} WHERE id=?";
 
         try {
             $this->query = $this->db->prepare($this->sql);
-            $this->query->execute();
+            $this->query->execute(array($id));
         } catch(PDOException $e) {
-                return $e->getMessage();
+            return $e->getMessage();
         }
     }
 }
