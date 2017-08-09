@@ -96,4 +96,19 @@ class Vivid {
             return $e->getMessage();
         }
     }
+
+    function getByID($id)
+    {
+        $this->sql = "SELECT * FROM {$this->table} WHERE id = ?";
+
+        try {
+            $this->query = $this->db->prepare($this->sql);
+            $this->query->execute(array($id));
+            $this->results = $this->query->fetchAll(PDO::FETCH_OBJ);
+        } catch(PDOException $e) {
+            return $e->getMessage();
+        }
+
+        return $this->results;
+    }
 }
