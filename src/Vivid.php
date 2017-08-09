@@ -1,7 +1,5 @@
 <?php
 
-require_once('../vendor/autoload.php');
-
 class Vivid {
     protected $db;
     protected $query;
