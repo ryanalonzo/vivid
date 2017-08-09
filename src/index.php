@@ -43,6 +43,10 @@ class Vivid {
         } catch(PDOException $e) {
             return $e->getMessage();
         }
+        return $this;
+    }
+
+    function results() {
         return $this->results;
     }
 }
