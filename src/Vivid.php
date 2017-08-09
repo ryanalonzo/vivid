@@ -45,13 +45,13 @@ class Vivid {
         return $this->results;
     }
 
-    function create($table, $columns = [])
+    function create($columns = [])
     {
         if(isset($table) && count($columns)) {
             $keys = array_keys($columns);
             $values = array_values($columns);
             $vals = implode("','", $values);
-            $this->sql = "INSERT INTO {$table} (".implode(',', $keys).") VALUES ('$vals')";
+            $this->sql = "INSERT INTO {$this->table} (".implode(',', $keys).") VALUES ('$vals')";
 
             try {
                 $this->query = $this->db->prepare($this->sql);
