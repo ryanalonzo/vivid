@@ -74,7 +74,7 @@ class Vivid {
         }
     }
 
-    function update($table, $columns = [], $id)
+    function update($columns = [], $id)
     {
         $set = '';
         $comma = 1;
@@ -87,7 +87,7 @@ class Vivid {
             $comma++;
         }
 
-        $this->sql = "UPDATE {$table} SET {$set} WHERE id=?";
+        $this->sql = "UPDATE {$this->table} SET {$set} WHERE id=?";
 
         try {
             $this->query = $this->db->prepare($this->sql);
