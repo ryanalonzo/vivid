@@ -49,13 +49,11 @@ class Vivid {
 
     function create($table, $columns = [])
     {
-        $this->table = $table;
-
         if(isset($table) && count($columns)) {
             $keys = array_keys($columns);
             $values = array_values($columns);
             $vals = implode("','", $values);
-            $this->sql = "INSERT INTO {$this->table} (".implode(',', $keys).") VALUES ('$vals')";
+            $this->sql = "INSERT INTO {$table} (".implode(',', $keys).") VALUES ('$vals')";
 
             try {
                 $this->query = $this->db->prepare($this->sql);
@@ -68,19 +66,36 @@ class Vivid {
 
     function delete($table, $id)
     {
-        $this->table = $table;
+        $this->sql = "DELETE FROM {$table} WHERE id='$id'";
 
-        $this->sql = "DELETE FROM {$this->table} WHERE id='$id'";
         try {
-                $this->query = $this->db->prepare($this->sql);
-                $this->query->execute();
+            $this->query = $this->db->prepare($this->sql);
+            $this->query->execute();
         } catch(PDOException $e) {
                 return $e->getMessage();
         }
     }
 
-    function update()
+    function update($table, $columns = [], $id)
     {
+        $set = '';
+        $comma = 1;
 
+        foreach($columns as $key => $value) {
+            $set.= "{$key} = '$value'";
+            if($comma < count($columns)) {
+                $set.=',';
+            }
+            $comma++;
+        }
+
+        $this->sql = "UPDATE {$table} SET {$set} WHERE id='{$id}'";
+
+        try {
+            $this->query = $this->db->prepare($this->sql);
+            $this->query->execute();
+        } catch(PDOException $e) {
+                return $e->getMessage();
+        }
     }
 }

@@ -3,7 +3,7 @@ require_once('../vendor/autoload.php');
 
 $vivid = new Vivid('localhost','phonebook','root','password');
 $user = [
-    'first_name' => 'REnzo',
+    'first_name' => 'Renzows',
     'last_name'  => 'Alonzo',
     'middle_name'=> 'Precilla',
     'birthdate' => 'Feb. 25, 1998',
@@ -14,5 +14,5 @@ $user = [
     'mobile_number' => '09363515387',
     'home_number' => '7464287'
 ];
-$vivid->delete('users',5);
+$vivid->update('users',$user,1);
 ?>
