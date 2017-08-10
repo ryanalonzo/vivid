@@ -1,11 +1,11 @@
 <?php
-/*
+
 require_once('../vendor/autoload.php');
 
 $vivid = new Vivid('localhost', 'phonebook', 'root', 'password');
 
 $user = [
-    'first_name' => 'dasd',
+    'first_name' => 'Ryan Alonzo',
     'last_name' => 'asd',
     'middle_name' => 'asd',
     'birthdate' => 'asd',
@@ -17,4 +17,5 @@ $user = [
     'home_number' => 'asd'
 ];
 
-$vivid->create('users', $user);*/
+$vivid->table('users')
+      ->create($user);

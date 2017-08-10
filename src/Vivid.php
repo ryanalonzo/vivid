@@ -47,14 +47,33 @@ class Vivid {
 
     function create($columns = [])
     {
-        if(isset($table) && count($columns)) {
+        if(isset($this->table) && count($columns)) {
             $keys = array_keys($columns);
             $values = array_values($columns);
-            $vals = implode("','", $values);
-            $this->sql = "INSERT INTO {$this->table} (".implode(',', $keys).") VALUES ('$vals')";
+
+            $x = 1;
+            $params = '';
+
+            foreach($columns as $cols) {
+                $params .= '?';
+                if($x < count($columns)) {
+                    $params .= ', ';
+                }
+                $x++;
+            }
+
+            $this->sql = "INSERT INTO {$this->table} (".implode(',', $keys).") VALUES ($params)";
 
             try {
-                $this->query = $this->db->prepare($this->sql);
+                $query = $this->query = $this->db->prepare($this->sql);
+
+                $par = 1;
+
+                foreach($values as $val) {
+                    $query->bindValue($par, $val);
+                    $par++;
+                }
+
                 $this->query->execute();
             } catch(PDOException $e) {
                 return $e->getMessage();
@@ -64,7 +83,7 @@ class Vivid {
 
     function delete($table, $id)
     {
-        $this->sql = "DELETE FROM {$table} WHERE id=?";
+        $this->sql = "DELETE FROM {$table} WHERE id = ?";
 
         try {
             $this->query = $this->db->prepare($this->sql);
@@ -87,7 +106,7 @@ class Vivid {
             $comma++;
         }
 
-        $this->sql = "UPDATE {$this->table} SET {$set} WHERE id=?";
+        $this->sql = "UPDATE {$this->table} SET {$set} WHERE id = ?";
 
         try {
             $this->query = $this->db->prepare($this->sql);
