@@ -6,7 +6,13 @@ class Vivid {
     protected $table;
     protected $results;
     protected $limit;
-
+    /**
+     * Requires host, database name and user credentials
+     * @param string/int $host
+     * @param string $database_name
+     * @param string $username
+     * @param string/int $password
+     */
     function __construct($host,$database_name,$username,$password)
     {
         try {
@@ -15,18 +21,29 @@ class Vivid {
             return $e->getMessage();
         }
     }
-
+    /**
+     * Select your desired table
+     * @param  string $table
+     * @return object       for chaining purpose
+     */
     function table($table)
     {
         $this->table = $table;
         return $this;
     }
-
+    /**
+     * Set your desired limit
+     * @param  int    $limit
+     * @return object       for chaining purpose
+     */
     function limit(int $limit) {
         $this->limit = $limit;
         return $this;
     }
-
+    /**
+     * Displays all records with or without limits
+     * @return array
+     */
     function get()
     {
         if(isset($this->limit)) {
@@ -44,7 +61,11 @@ class Vivid {
 
         return $this->results;
     }
-
+    /**
+     * Inserting records
+     * @param  array  $columns
+     * @return string       IF: There is an error
+     */
     function create($columns = [])
     {
         if(isset($this->table) && count($columns)) {
@@ -80,7 +101,12 @@ class Vivid {
             }
         }
     }
-
+    /**
+     * Delete specific record
+     * @param  string $table
+     * @param  int    $id
+     * @return string       IF: There is an error
+     */
     function delete($table, $id)
     {
         $this->sql = "DELETE FROM {$table} WHERE id = ?";
@@ -92,7 +118,12 @@ class Vivid {
             return $e->getMessage();
         }
     }
-
+    /**
+     * Update specific record
+     * @param  array  $columns [description]
+     * @param  int    $id      [description]
+     * @return string       IF: There is an error
+     */
     function update($columns = [], $id)
     {
         $set = '';
@@ -115,7 +146,11 @@ class Vivid {
             return $e->getMessage();
         }
     }
-
+    /**
+     * Select specific record
+     * @param  int  $id
+     * @return array
+     */
     function getByID($id)
     {
         $this->sql = "SELECT * FROM {$this->table} WHERE id = ?";
