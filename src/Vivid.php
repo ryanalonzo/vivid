@@ -207,23 +207,4 @@ class Vivid {
             return $e->getMessage();
         }
     }
-    /**
-     * Select specific record
-     * @param  int  $id
-     * @return array
-     */
-    function getByID($id)
-    {
-        $this->sql = "SELECT * FROM {$this->table} WHERE id = ?";
-
-        try {
-            $this->query = $this->db->prepare($this->sql);
-            $this->query->execute(array($id));
-            $this->results = $this->query->fetchAll(PDO::FETCH_OBJ);
-        } catch(PDOException $e) {
-            return $e->getMessage();
-        }
-
-        return $this->results;
-    }
 }
