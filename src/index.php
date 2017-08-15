@@ -1,8 +1,10 @@
 <?php
 
 require_once('../vendor/autoload.php');
+$dotenv = new \Dotenv\Dotenv(__DIR__ . '/../');
+$dotenv->load();
 
-$vivid = new Vivid('localhost', 'phonebook', 'root', 'password');
+$vivid = new Vivid;
 
 $results = $vivid->table('users')
       ->limit(2)

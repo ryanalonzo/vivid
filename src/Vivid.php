@@ -2,25 +2,32 @@
 
 class Vivid {
     protected $db;
+    protected $host;
+    protected $username;
+    protected $password;
+    protected $database;
     protected $query;
     protected $table;
     protected $results;
     protected $parameters = [];
 
-    /**
-     * Requires host, database name and user credentials
-     * @param string/int $host
-     * @param string $database_name
-     * @param string $username
-     * @param string/int $password
-     */
-    function __construct($host,$database_name,$username,$password)
+    public function __construct($host = null, $username = null, $password = null, $database = null)
     {
-        try {
-            $this->db = new PDO("mysql:host=$host;dbname=$database_name",$username,$password);
-        } catch(PDOException $e) {
-            return $e->getMessage();
-        }
+        $this->host = $host ?? $_ENV['DB_HOST'];
+        $this->username = $username ?? $_ENV['DB_USER'];
+        $this->password = $password ?? $_ENV['DB_PASS'];
+        $this->database = $database ?? $_ENV['DB_NAME'];
+
+        $this->make();
+    }
+
+    public function make()
+    {
+        $this->db = new PDO(
+            sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $this->host, $this->database),
+            $this->username,
+            $this->password
+        );
     }
     /**
      * Select your desired table
