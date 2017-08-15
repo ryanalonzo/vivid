@@ -5,7 +5,8 @@ class Vivid {
     protected $query;
     protected $table;
     protected $results;
-    protected $limit;
+    protected $parameters = [];
+
     /**
      * Requires host, database name and user credentials
      * @param string/int $host
@@ -32,34 +33,94 @@ class Vivid {
         return $this;
     }
     /**
-     * Set your desired limit
-     * @param  int    $limit
+     * Displays all records from the database
+     * @param  integer $limit
+     * @return object
+     */
+    function all($limit = 20)
+    {
+        if(!$this->table) {
+            throw new \Exception('You must set the table first.');
+        }
+        try {
+            $query = $this
+                    ->db
+                    ->prepare("SELECT * FROM {$this->table} LIMIT :limit");
+
+            $query->bindParam(':limit', $limit, PDO::PARAM_INT);
+
+            $query->execute();
+        } catch(PDOException $ex) {
+            var_dump($ex->getMessage());
+        }
+
+        return $query->fetchAll(PDO::FETCH_OBJ);
+    }
+    /**
+     * Limits the results by specific number.
+     * @param  integer $limit
      * @return object       for chaining purpose
      */
-    function limit(int $limit) {
-        $this->limit = $limit;
+    public function limit($limit = 10)
+    {
+        $this->query .= "LIMIT :limit ";
+
+        $this->addParameter(':limit', $limit, PDO::PARAM_INT);
+
         return $this;
     }
     /**
-     * Displays all records with or without limits
-     * @return array
+     * Make an array of parameters
+     * @param string $parameter [description]
+     * @param value $value     [description]
+     * @param attribute $attribute
      */
-    function get()
+    public function addParameter($parameter, $value, $attribute = null)
     {
-        if(isset($this->limit)) {
-            $this->sql = "SELECT * FROM $this->table LIMIT $this->limit";
-        } else {
-            $this->sql = "SELECT * FROM $this->table";
-        }
+        $this->parameters[$parameter] = [
+            'value' => $value,
+            'attribute' => $attribute
+        ];
+    }
+    /**
+     * Used to filter results based on a given conditions
+     * @param  string $column [description]
+     * @param  string $value  [description]
+     * @return object       for chaining purpose
+     */
+    public function where($column, $value)
+    {
+        $this->query .= "WHERE {$column} = :value ";
+
+        $this->addParameter(':value', $value, PDO::PARAM_STR);
+
+        return $this;
+    }
+    /**
+     * Binds parameters and executes the query.
+     * @return [type] [description]
+     */
+    public function get()
+    {
         try {
-            $this->query = $this->db->prepare($this->sql);
-            $this->query->execute();
-            $this->results = $this->query->fetchAll(PDO::FETCH_OBJ);
-        } catch(PDOException $e) {
-            return $e->getMessage();
+            $query = $this
+                ->db
+                ->prepare("SELECT * FROM {$this->table} {$this->query}");
+
+            foreach($this->parameters as $key => $parameter) {
+                $query->bindParam(
+                    $key,
+                    $parameter['value'],
+                    $parameter['attribute']
+                );
+            }
+
+            $query->execute();
+        } catch(PDOException $ex) {
+            vdump($ex->getMessage());
         }
 
-        return $this->results;
+        return $query->fetchAll(PDO::FETCH_OBJ);
     }
     /**
      * Inserting records
