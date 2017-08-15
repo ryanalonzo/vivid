@@ -198,7 +198,7 @@ class Vivid {
         $comma = 1;
 
         foreach($columns as $key => $value) {
-            $set.= "{$key} = '$value'";
+            $set .= "{$key} = '$value'";
             if($comma < count($columns)) {
                 $set .= ',';
             }
