@@ -103,6 +103,14 @@ class Vivid {
 
         return $this;
     }
+
+    public function andWhere($column, $value)
+    {
+        $this->query .= "AND {$column} = :value ";
+        $this->addParameter(':value', $value, PDO::PARAM_STR);
+
+        return $this;
+    }
     /**
      * Binds parameters and executes the query.
      * @return [type] [description]
