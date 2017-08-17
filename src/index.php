@@ -1,15 +1,13 @@
 <?php
 
-require_once('../vendor/autoload.php');
+/*require_once('../vendor/autoload.php');
 $dotenv = new \Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
 $vivid = new Vivid;
 
 $results = $vivid->table('users')
-      ->limit(2)
+      ->where('username', 'ryan')
+      ->andWhere('password', 'alonzo')
       ->get();
-
-foreach($results as $result) {
-    echo $result->first_name . '<br>';;
-}
+var_dump($results);*/

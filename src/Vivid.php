@@ -106,8 +106,8 @@ class Vivid {
 
     public function andWhere($column, $value)
     {
-        $this->query .= "AND {$column} = :value ";
-        $this->addParameter(':value', $value, PDO::PARAM_STR);
+        $this->query .= "AND {$column} = :value2 ";
+        $this->addParameter(':value2', $value, PDO::PARAM_STR);
 
         return $this;
     }
