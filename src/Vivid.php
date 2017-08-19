@@ -225,6 +225,12 @@ class Vivid {
         }
     }
 
+    function join($table, $first, $second)
+    {
+        $this->query .= "INNER JOIN {$table} ON {$first} = {$second} ";
+        return $this;
+    }
+
     function select($columns = [])
     {
         $cols = '';
@@ -236,19 +242,17 @@ class Vivid {
             }
             $comma++;
         }
-        $this->query .= "SELECT {$cols} FROM {$this->table}";
 
-        return $this;
-    }
+        try {
+            $query = $this
+                ->db
+                ->prepare("SELECT {$cols} FROM {$this->table} {$this->query}");
 
-    function join($table, $first, $second)
-    {
-        $this->query .= " INNER JOIN {$table} ON {$first} = {$second}";
-        return $this;
-    }
+            $query->execute();
+        } catch(PDOException $ex) {
+            vdump($ex->getMessage());
+        }
 
-    function getQuery()
-    {
-        return $this->query;
+        return $query->fetchAll(PDO::FETCH_OBJ);
     }
 }
