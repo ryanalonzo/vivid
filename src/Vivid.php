@@ -224,4 +224,31 @@ class Vivid {
             return $e->getMessage();
         }
     }
+
+    function select($columns = [])
+    {
+        $cols = '';
+        $comma = 1;
+        foreach($columns as $key => $value) {
+            $cols .= "$value";
+            if($comma < count($columns)) {
+                $cols .= ',';
+            }
+            $comma++;
+        }
+        $this->query .= "SELECT {$cols} FROM {$this->table}";
+
+        return $this;
+    }
+
+    function join($table, $first, $second)
+    {
+        $this->query .= " INNER JOIN {$table} ON {$first} = {$second}";
+        return $this;
+    }
+
+    function getQuery()
+    {
+        return $this->query;
+    }
 }
