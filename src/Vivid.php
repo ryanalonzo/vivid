@@ -28,6 +28,8 @@ class Vivid {
             $this->username,
             $this->password
         );
+
+        return $this->db;
     }
     /**
      * Select your desired table
