@@ -248,6 +248,14 @@ class Vivid {
                 ->db
                 ->prepare("SELECT {$cols} FROM {$this->table} {$this->query}");
 
+            foreach($this->parameters as $key => $parameter) {
+                $query->bindParam(
+                    $key,
+                    $parameter['value'],
+                    $parameter['attribute']
+                );
+            }
+
             $query->execute();
         } catch(PDOException $ex) {
             vdump($ex->getMessage());
