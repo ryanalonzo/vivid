@@ -1,266 +1,135 @@
 <?php
 
-class Vivid {
-    protected $db;
-    protected $host;
-    protected $username;
-    protected $password;
-    protected $database;
-    protected $query;
-    protected $table;
-    protected $results;
-    protected $parameters = [];
+namespace Epoch\Controllers;
 
-    public function __construct($host = null, $username = null, $password = null, $database = null)
+use Epoch\Models\Product;
+
+class ProductController
+{
+    /**
+     * Display all products
+     */
+    function showProducts()
     {
-        $this->host = $host ?? $_ENV['DB_HOST'];
-        $this->username = $username ?? $_ENV['DB_USER'];
-        $this->password = $password ?? $_ENV['DB_PASS'];
-        $this->database = $database ?? $_ENV['DB_NAME'];
+        $product = new Product;
 
-        $this->make();
-    }
+        $products = $product->all();
 
-    public function make()
-    {
-        $this->db = new PDO(
-            sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $this->host, $this->database),
-            $this->username,
-            $this->password
-        );
-
-        return $this->db;
+        return view('products', ['products' => $products]);
     }
     /**
-     * Select your desired table
-     * @param  string $table
-     * @return object       for chaining purpose
+     * Add product into the database
      */
-    function table($table)
+    function addProduct()
     {
-        $this->table = $table;
-        return $this;
-    }
-    /**
-     * Displays all records from the database
-     * @param  integer $limit
-     * @return object
-     */
-    function all($limit = 20)
-    {
-        if(!$this->table) {
-            throw new \Exception('You must set the table first.');
-        }
-        try {
-            $query = $this
-                    ->db
-                    ->prepare("SELECT * FROM {$this->table} LIMIT :limit");
+        if(isset($_POST['add'])) {
 
-            $query->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $product = new Product;
 
-            $query->execute();
-        } catch(PDOException $ex) {
-            var_dump($ex->getMessage());
-        }
-
-        return $query->fetchAll(PDO::FETCH_OBJ);
-    }
-    /**
-     * Limits the results by specific number.
-     * @param  integer $limit
-     * @return object       for chaining purpose
-     */
-    public function limit($limit = 10)
-    {
-        $this->query .= "LIMIT :limit ";
-
-        $this->addParameter(':limit', $limit, PDO::PARAM_INT);
-
-        return $this;
-    }
-    /**
-     * Make an array of parameters
-     * @param string $parameter [description]
-     * @param value $value     [description]
-     * @param attribute $attribute
-     */
-    public function addParameter($parameter, $value, $attribute = null)
-    {
-        $this->parameters[$parameter] = [
-            'value' => $value,
-            'attribute' => $attribute
-        ];
-    }
-    /**
-     * Used to filter results based on a given conditions
-     * @param  string $column [description]
-     * @param  string $value  [description]
-     * @return object       for chaining purpose
-     */
-    public function where($column, $value)
-    {
-        $this->query .= "WHERE {$column} = :value ";
-
-        $this->addParameter(':value', $value, PDO::PARAM_STR);
-
-        return $this;
-    }
-
-    public function andWhere($column, $value)
-    {
-        $this->query .= "AND {$column} = :value2 ";
-        $this->addParameter(':value2', $value, PDO::PARAM_STR);
-
-        return $this;
-    }
-    /**
-     * Binds parameters and executes the query.
-     * @return [type] [description]
-     */
-    public function get()
-    {
-        try {
-            $query = $this
-                ->db
-                ->prepare("SELECT * FROM {$this->table} {$this->query}");
-
-            foreach($this->parameters as $key => $parameter) {
-                $query->bindParam(
-                    $key,
-                    $parameter['value'],
-                    $parameter['attribute']
-                );
-            }
-
-            $query->execute();
-        } catch(PDOException $ex) {
-            vdump($ex->getMessage());
-        }
-
-        return $query->fetchAll(PDO::FETCH_OBJ);
-    }
-    /**
-     * Inserting records
-     * @param  array  $columns
-     * @return string       IF: There is an error
-     */
-    function create($columns = [])
-    {
-        if(isset($this->table) && count($columns)) {
-            $keys = array_keys($columns);
-            $values = array_values($columns);
-
-            $x = 1;
-            $params = '';
-
-            foreach($columns as $cols) {
-                $params .= '?';
-                if($x < count($columns)) {
-                    $params .= ', ';
+            $match = $product->where('prod_name', $_POST['prod_name'])
+                  ->get();
+            if($match) {
+                echo "<script>alert('Product already exists');window.location = 'addNewProduct'</script>";
+                exit;
+            } else {
+                $target_dir = "images/products/";
+                $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+                $uploadOk = 1;
+                $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
+                // Check if image file is a actual image or fake image
+                $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
+                if($check == false) {
+                    echo "<script>alert('File is not an image.');window.location = 'addNewProduct'</script>";
+                    $uploadOk = 0;
                 }
-                $x++;
-            }
-
-            $this->sql = "INSERT INTO {$this->table} (".implode(',', $keys).") VALUES ($params)";
-
-            try {
-                $query = $this->query = $this->db->prepare($this->sql);
-
-                $par = 1;
-
-                foreach($values as $val) {
-                    $query->bindValue($par, $val);
-                    $par++;
+                // Check if file already exists
+                if (file_exists($target_file)) {
+                    echo "<script>alert('Sorry, file already exists..');window.location = 'addNewProduct'</script>";
+                    $uploadOk = 0;
                 }
+                // Check file size
+                if ($_FILES["fileToUpload"]["size"] > 500000) {
+                    echo "<script>alert('Sorry, your file is too large.');window.location = 'addNewProduct'</script>";
+                    $uploadOk = 0;
+                }
+                // Allow certain file formats
+                if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+                && $imageFileType != "gif" ) {
+                    echo "<script>alert('Sorry, only JPG, JPEG, PNG & GIF files are allowed.');window.location = 'addNewProduct'</script>";
+                    $uploadOk = 0;
+                }
+                // Check if $uploadOk is set to 0 by an error
+                if ($uploadOk == 0) {
+                    echo "<script>alert('Sorry, your file was not uploaded.');window.location = 'addNewProduct'</script>";
+                // if everything is ok, try to upload file
+                } else {
+                    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 
-                $this->query->execute();
-            } catch(PDOException $e) {
-                return $e->getMessage();
+                        $image = basename( $_FILES["fileToUpload"]["name"]);
+
+                        $input = [
+                            'prod_name' => $_POST['prod_name'],
+                            'unit_price'=> $_POST['unit_price'],
+                            'stocks'    => $_POST['stocks'],
+                            'image_src' => $image
+                        ];
+
+                        $product->create($input);
+                        echo "<script>alert('Successfully added!.');window.location = 'products'</script>";
+                    } else {
+                        echo "Sorry, there was an error uploading your file.";
+                    }
+                }
             }
         }
     }
-    /**
-     * Delete specific record
-     * @param  string $table
-     * @param  int    $id
-     * @return string       IF: There is an error
-     */
-    function delete()
+
+    function editProduct()
     {
-        $query = "DELETE FROM {$this->table} {$this->query}";
+        $product = new Product;
 
-        try {
-            $this->query = $this->db->prepare($query);
-            $this->query->execute();
-        } catch(PDOException $e) {
-            return $e->getMessage();
-        }
-    }
-    /**
-     * Update specific record
-     * @param  array  $columns [description]
-     * @param  int    $id      [description]
-     * @return string       IF: There is an error
-     */
-    function update($columns = [], $id)
-    {
-        $set = '';
-        $comma = 1;
+        if(isset($_POST['edit'])) {
+            $prodID = $_POST['prod_id'];
 
-        foreach($columns as $key => $value) {
-            $set .= "{$key} = '$value'";
-            if($comma < count($columns)) {
-                $set .= ',';
-            }
-            $comma++;
-        }
+            $prodDetails = $product->where('id', $prodID)
+                                   ->get();
 
-        $this->sql = "UPDATE {$this->table} SET {$set} WHERE id = ?";
-
-        try {
-            $this->query = $this->db->prepare($this->sql);
-            $this->query->execute(array($id));
-        } catch(PDOException $e) {
-            return $e->getMessage();
-        }
-    }
-
-    function join($table, $first, $second)
-    {
-        $this->query .= "INNER JOIN {$table} ON {$first} = {$second} ";
-        return $this;
-    }
-
-    function select($columns = [])
-    {
-        $cols = '';
-        $comma = 1;
-        foreach($columns as $key => $value) {
-            $cols .= "$value";
-            if($comma < count($columns)) {
-                $cols .= ',';
-            }
-            $comma++;
-        }
-
-        try {
-            $query = $this
-                ->db
-                ->prepare("SELECT {$cols} FROM {$this->table} {$this->query}");
-
-            foreach($this->parameters as $key => $parameter) {
-                $query->bindParam(
-                    $key,
-                    $parameter['value'],
-                    $parameter['attribute']
-                );
+            if(!isset($_SESSION['prodDetails'])) {
+                $_SESSION['prod_details'] = [];
             }
 
-            $query->execute();
-        } catch(PDOException $ex) {
-            vdump($ex->getMessage());
+            $_SESSION['prod_details'] = $prodDetails;
+
         }
 
-        return $query->fetchAll(PDO::FETCH_OBJ);
+        if(isset($_POST['update'])) {
+            $product = new Product;
+
+            $input = [
+                'prod_name' => $_POST['prod_name'],
+                'unit_price'=> $_POST['unit_price'],
+                'stocks'    => $_POST['stocks']
+            ];
+
+            $product->update($input, $_POST['prod_id']);
+            echo "<script>alert('Successfully Updated!.');window.location = 'products'</script>";
+        }
+
+        if(isset($_POST['delete'])) {
+            $product = new Product;
+
+            $prodID = $_POST['prod_id'];
+
+            $match = $product->where('id', $prodID)
+                             ->get();
+
+            foreach($match as $prod) {
+                $product->delete('products', $prodID);
+
+                unlink("images/products/$prod->image_src");
+
+                header('Location: products');
+            }
+        }
     }
 }
