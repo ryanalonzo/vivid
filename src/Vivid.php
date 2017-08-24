@@ -185,13 +185,13 @@ class Vivid {
      * @param  int    $id
      * @return string       IF: There is an error
      */
-    function delete($table, $id)
+    function delete()
     {
-        $this->sql = "DELETE FROM {$table} WHERE id = ?";
+        $query = "DELETE FROM {$this->table} {$this->query}";
 
         try {
-            $this->query = $this->db->prepare($this->sql);
-            $this->query->execute(array($id));
+            $this->query = $this->db->prepare($query);
+            $this->query->execute();
         } catch(PDOException $e) {
             return $e->getMessage();
         }
